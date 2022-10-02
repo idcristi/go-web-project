@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"go-web-dev/models"
 	"net/http"
 )
 
@@ -9,6 +10,7 @@ type Users struct {
 	Templates struct {
 		New Template
 	}
+	UserService *models.UserService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -20,6 +22,13 @@ func (u Users) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<p>Email: %s</p>", r.FormValue("email"))
-	fmt.Fprintf(w, "<p>Password: %s</p>", r.FormValue("password"))
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, err := u.UserService.Create(email, password)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "User created:%+v", user)
 }
